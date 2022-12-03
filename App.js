@@ -1,117 +1,203 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import 'react-native-gesture-handler';
+/* eslint-disable */
+import * as React from 'react';
+import { Button, StyleSheet, TouchableOpacity, View,Text } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
+import { Table, Row, Rows } from 'react-native-table-component';
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+function HomePage({ navigation }) {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+
+    <View style={{ flex: 1}}>
+      <View style={styles.container}>
+        <View style={styles.middle}>
+          <Text>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+            when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+            It has survived not only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged.</Text>
+        </View>
+        <View style={styles.middle}>
+          <Text>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+            when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+            It has survived not only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged.</Text>
+        </View>
+        <View style={styles.middle}>
+          <Text>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+            when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+            It has survived not only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged.</Text>
+        </View>
+
+
+      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer2}>
+        <Text style={styles.appButtonText}>Question one</Text>
+      </TouchableOpacity>
     </View>
   );
-};
+}
+function Results({ navigation }) {
+  const header = ['Nick', 'Point', 'Type','Date']
+  const data = [
+    ['gfg1', 'gfg2', 'gfg3', 'gfg3'],
+    ['gfg4', 'gfg5', 'gfg6', 'gfg3'],
+    ['gfg7', 'gfg8', 'gfg9', 'gfg3'],
+    ['gfg7', 'gfg8', 'gfg9', 'gfg3']
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  ]
+  return (
+    <View style={{ marginTop: 200}}>
+      <Text style={{ fontSize: 18, textAlign: 'center'}}>
+        Results</Text>
+      <Table borderStyle={{ borderWidth: 2,
+        borderColor: '#c8e1ff',textAlign: 'center'}}>
+        <Row data={header} />
+        <Rows data={data} />
+      </Table>
+    </View>
+  );
+}
+function TestOne({ navigation }) {
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 30, textAlign: 'center'}}>Tu powinno być pytanie?</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question one</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question two</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question three</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question four</Text>
+      </TouchableOpacity>
+    </View>
+
+
   );
-};
+}
+function TestTwo({ navigation }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 30, textAlign: 'center'}}>Tu powinno być pytanie?</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question one</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question two</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question three</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question four</Text>
+      </TouchableOpacity>
+    </View>
+
+
+  );
+}
+function TestThree({ navigation }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 30, textAlign: 'center'}}>Tu powinno być pytanie?</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question one</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question two</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question three</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Test One')} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Question four</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+const Drawer = createDrawerNavigator();
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="HomePage">
+        <Drawer.Screen name="HomePage" component={HomePage} />
+        <Drawer.Screen name="Results" component={Results} />
+        <Drawer.Screen name="Test One" component={TestOne} />
+        <Drawer.Screen name="Test Two" component={TestTwo} />
+        <Drawer.Screen name="Test Three" component={TestThree} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  );
+}
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  // ...
+  appButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  appButtonContainer2: {
+    position: 'absolute',
+    bottom:0,
+    alignItems: 'center',
+    alignSelf: 'center',
+    elevation: 8,
+    backgroundColor: "#009688",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12
   },
-  sectionDescription: {
-    marginTop: 8,
+  appButtonText: {
     fontSize: 18,
-    fontWeight: '400',
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase"
   },
-  highlight: {
-    fontWeight: '700',
+  appButtonText2: {
+    fontSize: 12,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase"
   },
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    padding: 10,
+    margin: 5,
+  },
+  top: {
+    flex: 0.3,
+    backgroundColor: "grey",
+    borderWidth: 5,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  middle: {
+    flex: 0.3,
+    backgroundColor: "beige",
+    borderWidth: 2,
+  },
+  bottom: {
+    flex: 0.3,
+    backgroundColor: "pink",
+    borderWidth: 5,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  }
 });
-
-export default App;
