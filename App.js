@@ -1,10 +1,12 @@
-import 'react-native-gesture-handler';
 /* eslint-disable */
-import * as React from 'react';
-import { Button, StyleSheet, TouchableOpacity, View,Text } from 'react-native';
+import 'react-native-gesture-handler';
+
+import React, { useEffect, useState } from "react";
+import { Button, Dimensions, StyleSheet, TouchableOpacity, View, Text, ScrollView } from "react-native";
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { Table, Row, Rows } from 'react-native-table-component';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 
 
 function HomePage({ navigation }) {
@@ -42,24 +44,109 @@ function HomePage({ navigation }) {
     </View>
   );
 }
-function Results({ navigation }) {
-  const header = ['Nick', 'Point', 'Type','Date']
-  const data = [
-    ['gfg1', 'gfg2', 'gfg3', 'gfg3'],
-    ['gfg4', 'gfg5', 'gfg6', 'gfg3'],
-    ['gfg7', 'gfg8', 'gfg9', 'gfg3'],
-    ['gfg7', 'gfg8', 'gfg9', 'gfg3']
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
+function Results ({navigation}) {
 
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+
+  const animals = [
+    {
+      Nick: 'Adrian',
+      Point: '18/20',
+      Type: 'Historia',
+      Date: '21-11-2018',
+    },
+    {
+      Nick: 'Maciek',
+      Point: '13/20',
+      Type: 'Matematyka',
+      Date: '18-11-2018',
+    },
+    {
+      Nick: 'Dawid',
+      Point: '10/20',
+      Type: 'Polski',
+      Date: '15-11-2018',
+    },
+    {
+      Nick: 'Filip',
+      Point: '05/20',
+      Type: 'Geografia',
+      Date: '07-11-2018',
+    },
   ]
-  return (
-    <View style={{ marginTop: 200}}>
-      <Text style={{ fontSize: 18, textAlign: 'center'}}>
-        Results</Text>
-      <Table borderStyle={{ borderWidth: 2,
-        borderColor: '#c8e1ff',textAlign: 'center'}}>
-        <Row data={header} />
-        <Rows data={data} />
-      </Table>
+
+  const headerComponent = () => {
+    return(
+      <View style={{flexDirection: 'row'}}>
+        <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+          <Text style={{textAlign: "center"}}>Nick</Text>
+        </View>
+        <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+          <Text style={{textAlign: "center"}}>Point</Text>
+        </View>
+        <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+          <Text style={{textAlign: "center"}}>Type</Text>
+        </View>
+        <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+          <Text style={{textAlign: "center"}}>Date</Text>
+        </View>
+      </View>
+    )
+  }
+
+  const oneAnimal = ( { item } ) => (
+    <View style={{flexDirection: 'row'}}>
+      <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+        <Text style={{textAlign: "center"}}>{item.Nick}</Text>
+      </View>
+      <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+        <Text style={{textAlign: "center"}}>{item.Point}</Text>
+      </View>
+      <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+        <Text style={{textAlign: "center"}}>{item.Type}</Text>
+      </View>
+      <View style={{width: 90, borderWidth: 1, borderColor: "black"}}>
+        <Text style={{textAlign: "center"}}>{item.Date}</Text>
+      </View>
+    </View>
+
+  )
+
+
+  return(
+
+    <View>
+      <ScrollView
+        contentContainerStyle={styles.appButtonText}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+
+        <Text style={styles.appButtonText}>Results</Text>
+        <View style={styles.appButtonText}>
+          <View style={{ marginTop: 100 }}>
+            <FlatList
+              ListHeaderComponent={headerComponent}
+              data={animals}
+              renderItem = {oneAnimal}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -137,8 +224,12 @@ export default function App() {
         <Drawer.Screen name="Test Three" component={TestThree} />
       </Drawer.Navigator>
     </NavigationContainer>
+
+
   );
 }
+
+
 
 const styles = StyleSheet.create({
   // ...
@@ -162,14 +253,14 @@ const styles = StyleSheet.create({
   },
   appButtonText: {
     fontSize: 18,
-    color: "#fff",
+    color: "#000000",
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase"
   },
   appButtonText2: {
     fontSize: 12,
-    color: "#fff",
+    color: "#000000",
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase"
@@ -189,6 +280,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   middle: {
+    fontSize: 18,
+    color: "#000000",
     flex: 0.3,
     backgroundColor: "beige",
     borderWidth: 2,
