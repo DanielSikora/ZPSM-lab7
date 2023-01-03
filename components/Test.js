@@ -1,7 +1,31 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    ToastAndroid,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import {ProgressBar} from 'react-native-paper';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
+import _ from 'lodash';
+import SQLite from 'react-native-sqlite-storage';
+import NetInfo from '@react-native-community/netinfo';
+
+const db = SQLite.openDatabase(
+  {
+      name: 'quizDB',
+      location: 'default',
+  },
+  () => { },
+  error => {
+      console.log("ERROR: " + error);
+  }
+);
+
 
 const Test = (props) => {
 
@@ -12,6 +36,7 @@ const Test = (props) => {
     const [answerIndex, setAnswerIndex] = useState();
 
     const [quiz, setQuiz] = useState([]);
+    const [id, setId] = useState([]);
     const [isLoading, setLoading] = useState(true);
 
     const clear = () => {
@@ -21,11 +46,17 @@ const Test = (props) => {
         setIsPlaying(true);
     }
 
-    const getQuiz = async () => {
+    const getQuiz = async (id) => {
+
         try {
-            let string = 'https://tgryl.pl/quiz/test/'+props.route.params.quizId;
+            let string = 'https://tgryl.pl/quiz/test/' + id;
             const response = await fetch(string);
             const json = await response.json();
+            json.tasks = _.shuffle(json.tasks);
+
+            for (let i = 0; i < json.tasks.length; i++) {
+                json.tasks[i].answers = _.shuffle(json.tasks[i].answers);
+            }
             setQuiz(json);
         } catch (error) {
             console.error(error);
@@ -34,15 +65,65 @@ const Test = (props) => {
         }
     }
 
+    const DBHelper = {
+        getQuizDBTMP: (callback) => {
+            db.transaction( (tx) => {
+                tx.executeSql(
+                  "SELECT quiz From Quiz where quiz_id = ?",
+                  [id.toString()],
+                  (tx, results) => {
+                      let len = results.rows.length;
+                      if(len > 0){
+                          let quiz = results.rows.item(0);
+                          let quiz2 = JSON.stringify(quiz).replaceAll('\\','');
+                          quiz2= quiz2.substring(9, quiz2.length-2);
+                          let quiz3 = JSON.parse(quiz2);
+
+                          quiz3.tasks = _.shuffle(quiz3.tasks);
+
+                          for (let i = 0; i < quiz3.tasks.length; i++) {
+                              quiz3.tasks[i].answers = _.shuffle(quiz3.tasks[i].answers);
+                          }
+                          callback(quiz3);
+                      }
+                  }
+                );
+            });
+        },
+    }
+
+    const getQuizBD = () => {
+        try {
+            DBHelper.getQuizDBTMP(value => {
+                setQuiz(value);
+                setLoading(false);
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+
+        }
+    }
+
     useEffect(() => {
-        return props.navigation.addListener("focus", () => {
-            clear();
-            let o = getQuiz();
+        getQuizBD();
+    }, [id]);
+
+    const getQuizStart = (id) => {
+        NetInfo.fetch().then(state => {
+            console.log("Connection type", state.type);
+            console.log("Is connected?", state.isConnected);
+            if (state.isConnected) {
+                let o = getQuiz(id);
+            } else {
+                setId(id)
+            }
         });
-    }, [props.navigation]);
+    }
 
     const check = () =>{
         setAnswerIndex(-1);
+        console.log(typeof quiz)
         if(currentIndex === quiz.tasks.length-1){
             setIsPlaying(false);
             props.navigation.navigate('Finish',{
@@ -58,9 +139,28 @@ const Test = (props) => {
         }
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         return props.navigation.addListener("focus", () => {
+
+            if(props.route.params.quizId === -1)
+            {
+                let min = 0;
+                let max = props.route.params.quizList.length;
+                let random = Math.floor(Math.random() * (max - min) + min);
+                getQuizStart(props.route.params.quizList[random].id);
+            }
+            else
+            {
+                getQuizStart(props.route.params.quizId);
+            }
             clear();
+        });
+
+    }, [props.navigation]);
+
+    useEffect(() => {
+        return props.navigation.addListener("blur", () => {
+            setIsPlaying(false);
         });
     }, [props.navigation]);
 
@@ -81,66 +181,60 @@ const Test = (props) => {
         }
     }, [points]);
 
-    React.useEffect(() => {
-        return props.navigation.addListener("blur", () => {
-            console.log("wyjscie")
-            setIsPlaying(false);
-        });
-    }, [props.navigation]);
-
-
-    //navigation.reset
-
-    //dekompoment
+    const showAnswers = () => {
+        return(
+          <View style={styles.answers}>
+              {quiz.tasks[currentIndex].answers.map((answer, index) => {
+                  return (
+                    <TouchableOpacity key={quiz.id+'_'+currentIndex+'_'+index} onPress={() => setAnswerIndex(index)} style={styles.btn}>
+                        <Text style={styles.NRtext}>{answer.content}</Text>
+                    </TouchableOpacity>
+                  );
+              })}
+          </View>
+        )
+    }
 
     return (
-        <View style={{display: 'flex', flexDirection: 'column' ,backgroundColor : "#6c6b6b", flex: 1}}>
-            {isLoading ? <ActivityIndicator/> : (
-                <View>
-                    <View style={{margin: 15, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={styles.qustionsNUM}>Question {currentIndex+1} of {quiz.tasks.length}                 </Text>
-                        <CountdownCircleTimer
-                            isPlaying={isPlaying}
-                            key={key}
-                            duration={quiz.tasks[currentIndex].duration}
-                            colors={['#004777']}
-                            size={50}
-                            strokeWidth={5}
-                            trailStrokeWidth={5}
-                            onComplete={() => {
-                                check();
-                            }}
-                        >
-                            {({ remainingTime }) => <Text style={{fontSize: 20}}>{remainingTime}</Text>}
-                        </CountdownCircleTimer>
-                    </View>
-                    <View>
-                        <ProgressBar style={{height: 16, margin: 20}} progress={(currentIndex+1)/quiz.tasks.length} color={'green'}  />
-                    </View>
-                    <ScrollView>
-                        <View>
-                            <Text style={{fontWeight: 'bold', fontSize: 25, textAlign: 'center', margin: 10}}>{quiz.tasks[currentIndex].question}</Text>
-                        </View>
-                        <View style={styles.answers}>
-                            {quiz.tasks[currentIndex].answers.map((answer, index) => {
-                                return (
-                                    <TouchableOpacity key={quiz.id+'_'+currentIndex+'_'+index} onPress={() => setAnswerIndex(index)} style={styles.btn}>
-                                        <Text style={styles.NRtext}>{answer.content}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })
-                            }
-                        </View>
-                    </ScrollView>
+      <View style={{display: 'flex', flexDirection: 'column' ,backgroundColor : "#989696", flex: 1}}>
+          {isLoading ? <ActivityIndicator/> : (
+            <View>
+                <View style={{margin: 15, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={styles.qustionsNUM}>Question {currentIndex+1} of {quiz.tasks.length}                 </Text>
+                    <CountdownCircleTimer
+                      isPlaying={isPlaying}
+                      key={key}
+                      duration={quiz.tasks[currentIndex].duration}
+                      colors={['#004777']}
+                      size={50}
+                      strokeWidth={5}
+                      trailStrokeWidth={5}
+                      onComplete={() => {
+                          check();
+                      }}
+                    >
+                        {({ remainingTime }) => <Text style={{fontSize: 20}}>{remainingTime}</Text>}
+                    </CountdownCircleTimer>
                 </View>
-                )}
-        </View>
+                <View>
+                    <ProgressBar style={{height: 16, margin: 20}} progress={(currentIndex+1)/quiz.tasks.length} color={'green'}  />
+                </View>
+                <ScrollView>
+                    <View>
+                        <Text style={{fontWeight: 'bold', fontSize: 25, textAlign: 'center', margin: 10}}>{quiz.tasks[currentIndex].question}</Text>
+                    </View>
+                    {showAnswers()}
+                </ScrollView>
+            </View>
+          )}
+      </View>
     )
 }
 
 const styles = StyleSheet.create({
     container:{
-     flex:1
+     flex:1,
+     backgroundColor:'#545353',
     },
     rows:{
         flexDirection: 'row' ,
@@ -173,7 +267,7 @@ const styles = StyleSheet.create({
         display: 'flex'
     },
     btn:{
-        backgroundColor:'#b2b2b2',
+        backgroundColor:'#6c6b6b',
         margin: 15,
         height: 50,
         width: 170,
@@ -193,7 +287,7 @@ const styles = StyleSheet.create({
         padding: 10,
         border:  'black',
         borderRadius: 25,
-        backgroundColor: '#5300B0',
+        backgroundColor: '#6102cc',
         elevation: 20,
 
     },
